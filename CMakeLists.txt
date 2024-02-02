@@ -326,7 +326,7 @@ endif()
 if(SLANG_ENABLE_SLANG_GLSLANG)
     slang_add_target(
         source/slang-glslang
-        MODULE
+        STATIC
         USE_EXTRA_WARNINGS
         LINK_WITH_PRIVATE glslang SPIRV SPIRV-Tools-opt
         INSTALL

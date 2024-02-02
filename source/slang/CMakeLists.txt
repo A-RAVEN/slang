@@ -253,6 +253,7 @@ slang_add_target(
         slang-reflect-headers
         slang-lookup-tables
         SPIRV-Headers
+        slang-glslang
     # slang.h is in the project root, so include that directory in the interface
     # for slang
     INCLUDE_DIRECTORIES_PUBLIC ${slang_SOURCE_DIR}

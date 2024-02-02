@@ -32,6 +32,30 @@
 #   include "../slang-glslang/slang-glslang.h"
 #endif
 
+//#define SLANG_ENABLE_GLSLANG_STATIC_LINK
+#ifdef SLANG_ENABLE_GLSLANG_STATIC_LINK
+#define SLANG_GLSLANG_STATIC_LINK 1
+#endif
+
+#ifndef SLANG_GLSLANG_STATIC_LINK
+#define SLANG_GLSLANG_STATIC_LINK 0
+#endif
+
+#if SLANG_GLSLANG_STATIC_LINK
+#define SLANG_GLSLANG_DYNAMIC_LINK 0
+#else
+#define SLANG_GLSLANG_DYNAMIC_LINK 1
+#endif
+
+#if SLANG_GLSLANG_STATIC_LINK
+extern "C"
+{
+    extern int glslang_compile_1_2(glslang_CompileRequest_1_2* inRequest);
+    extern int glslang_compile_1_1(glslang_CompileRequest_1_1* inRequest);
+    extern int glslang_compile(glslang_CompileRequest_1_0* inRequest);
+};
+#endif
+
 namespace Slang
 {
 
@@ -69,21 +93,30 @@ protected:
 
 SlangResult GlslangDownstreamCompiler::init(ISlangSharedLibrary* library)
 {
+#if SLANG_GLSLANG_DYNAMIC_LINK
     m_compile_1_0 = (glslang_CompileFunc_1_0)library->findFuncByName("glslang_compile");
     m_compile_1_1 = (glslang_CompileFunc_1_1)library->findFuncByName("glslang_compile_1_1");
     m_compile_1_2 = (glslang_CompileFunc_1_2)library->findFuncByName("glslang_compile_1_2");
-
-
     if (m_compile_1_0 == nullptr && m_compile_1_1 == nullptr && m_compile_1_2 == nullptr)
     {
         return SLANG_FAIL;
     }
+#else
+    m_compile_1_0 = &glslang_compile;
+    m_compile_1_1 = &glslang_compile_1_1;
+    m_compile_1_2 = &glslang_compile_1_2;
+    if (m_compile_1_0 == nullptr && m_compile_1_1 == nullptr && m_compile_1_2 == nullptr)
+    {
+        return SLANG_FAIL;
+    }
+#endif
 
     m_sharedLibrary = library;
 
     // It's not clear how to query for a version, but we can get a version number from the header
     m_desc = Desc(m_compilerType);
 
+#if SLANG_GLSLANG_DYNAMIC_LINK
     Slang::String filename;
     if (m_compile_1_2)
     {
@@ -101,6 +134,7 @@ SlangResult GlslangDownstreamCompiler::init(ISlangSharedLibrary* library)
     {
         return SLANG_FAIL;
     }
+#endif
 
     return SLANG_OK;
 }
@@ -373,6 +407,7 @@ static SlangResult locateGlslangSpirvDownstreamCompiler(const String& path, ISla
 
 #endif
 
+#if SLANG_GLSLANG_DYNAMIC_LINK
     SLANG_RETURN_ON_FAIL(DownstreamCompilerUtil::loadSharedLibrary(path, loader, nullptr, "slang-glslang", library));
 
     SLANG_ASSERT(library);
@@ -380,7 +415,7 @@ static SlangResult locateGlslangSpirvDownstreamCompiler(const String& path, ISla
     {
         return SLANG_FAIL;
     }
-
+#endif
     auto compiler = new GlslangDownstreamCompiler(compilerType);
     ComPtr<IDownstreamCompiler> compilerIntf(compiler);
     SLANG_RETURN_ON_FAIL(compiler->init(library));
