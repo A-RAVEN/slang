@@ -511,6 +511,9 @@ struct SourceManager
         /// Get the source views
     const List<SourceView*>& getSourceViews() const { return m_sourceViews; }
 
+        /// Get source file map
+    const Dictionary<String, SourceFile*>& getSourceFileMap() const { return m_sourceFileMap; }
+
         /// Resets state. Will release all views/source 
     void reset();
 
