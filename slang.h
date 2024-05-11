@@ -265,7 +265,7 @@ convention for interface methods.
 #endif // SLANG_GCC_FAMILY
 
 #ifndef SLANG_OFFSET_OF
-#   define SLANG_OFFSET_OF(T, ELEMENT) (size_t(&((T*)1)->ELEMENT) - 1)
+#   define SLANG_OFFSET_OF(T, ELEMENT) offsetof(T, ELEMENT)//(size_t(&((T*)1)->ELEMENT) - 1)
 #endif
 
 // Microsoft VC specific
