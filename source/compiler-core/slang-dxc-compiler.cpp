@@ -540,6 +540,8 @@ SlangResult DXCDownstreamCompiler::compile(const CompileOptions& inOptions, IArt
         searchDirectories.searchDirectories.add(asString(includePath));
     }
 
+    args.add(L"-Qembed_debug");
+
     // TODO(JS): 
     // We don't want to enable HLSL2021 on DXC by default even if it's available because it has
     // changes that break things. Such as with operator ?:. So for now we disable.
